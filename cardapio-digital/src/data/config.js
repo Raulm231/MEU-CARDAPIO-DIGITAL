@@ -7,7 +7,7 @@ const PORT = 3333;
  * Se usar CELULAR FÍSICO, preencha com o IPv4 do seu PC.
  * Ex.: '192.168.0.105'
  */
-const FORCE_LAN_IP = ''; // deixe vazio para Web/Emulador
+const FORCE_LAN_IP = '10.10.6.162'; // deixe vazio para Web/Emulador
 
 const isWeb = Platform.OS === 'web';
 const isAndroid = Platform.OS === 'android';

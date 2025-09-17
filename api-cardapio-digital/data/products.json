@@ -1,1 +1,37 @@
-[]
+[
+  {
+    "id": 1,
+    "name": "Hambúrguer Artesanal",
+    "price": 25.9,
+    "sku": "BURG001",
+    "description": "Hambúrguer artesanal com carne angus"
+  },
+  {
+    "id": 2,
+    "name": "Pizza Margherita",
+    "price": 35.5,
+    "sku": "PIZZA001",
+    "description": "Pizza tradicional italiana com molho de tomate, mussarela e manjericão"
+  },
+  {
+    "id": 3,
+    "name": "Salada Caesar",
+    "price": 18.9,
+    "sku": "SALAD001",
+    "description": "Salada caesar com alface, croutons e molho especial"
+  },
+  {
+    "id": 4,
+    "name": "Hambúrguer gostoso",
+    "price": 15.99,
+    "sku": "BURG009",
+    "description": "Hambúrguer artesanal com carne wagyu"
+  },
+  {
+    "id": 5,
+    "name": "Sorvete sabor mortadela",
+    "price": 15.69,
+    "sku": "BURG011",
+    "description": "muito gostoso experimente"
+  }
+]

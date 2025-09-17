@@ -1,5 +1,5 @@
 // src/screens/ProductsScreen.js
-import React from 'react';
+import React, { useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -9,12 +9,17 @@ import {
   RefreshControl,
   StyleSheet,
   Button,
+  TextInput,
+  TouchableOpacity,
 } from 'react-native';
 import { useProducts } from '../hooks/useProducts';
 import ProductCard from '../components/ProductCard';
 
 export default function ProductsScreen() {
-  const { items, loading, error, reload } = useProducts();
+  // ALTERAÇÃO: Adicionado estado para controlar o campo de pesquisa
+  // Permite pesquisar produtos por nome ou ID
+  const [localSearchTerm, setLocalSearchTerm] = useState('');
+  const { items, loading, error, reload, search } = useProducts();
 
   // Carregamento inicial
   if (loading && items.length === 0) {
@@ -47,12 +52,48 @@ export default function ProductsScreen() {
     );
   }
 
+  // ALTERAÇÃO: Adicionadas funções para gerenciar a pesquisa
+  // Permite pesquisar por nome do produto ou por ID
+  const handleSearch = async () => {
+    if (localSearchTerm.trim() === '') {
+      reload(); // Se campo vazio, carrega todos os produtos
+    } else {
+      await search(localSearchTerm.trim());
+    }
+  };
+
+  const handleClearSearch = async () => {
+    setLocalSearchTerm('');
+    reload(); // Carrega todos os produtos
+  };
+
   // Lista de produtos
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Produtos</Text>
         <Button title="Recarregar" onPress={reload} />
+      </View>
+
+      {/* ALTERAÇÃO: Adicionado componente de pesquisa */}
+      {/* Permite pesquisar produtos por nome ou ID */}
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Pesquisar por nome ou ID..."
+          value={localSearchTerm}
+          onChangeText={setLocalSearchTerm}
+          onSubmitEditing={handleSearch}
+          returnKeyType="search"
+        />
+        <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+          <Text style={styles.searchButtonText}>Buscar</Text>
+        </TouchableOpacity>
+        {localSearchTerm !== '' && (
+          <TouchableOpacity style={styles.clearButton} onPress={handleClearSearch}>
+            <Text style={styles.clearButtonText}>Limpar</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Se houver erro durante um refresh, mas já temos dados, mostra um aviso */}
@@ -117,4 +158,54 @@ const styles = StyleSheet.create({
     borderColor: '#ffcccc',
   },
   bannerErrorText: { color: '#b30000', fontSize: 12 },
+  // ALTERAÇÃO: Adicionados estilos para o componente de pesquisa
+  // Estilos para a barra de pesquisa por nome ou ID
+  searchContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    marginHorizontal: 16,
+    marginBottom: 8,
+    borderRadius: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+  },
+  searchInput: {
+    flex: 1,
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    marginRight: 8,
+    fontSize: 16,
+  },
+  searchButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 6,
+    marginRight: 4,
+  },
+  searchButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  clearButton: {
+    backgroundColor: '#FF6B6B',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 6,
+  },
+  clearButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
+  },
 });

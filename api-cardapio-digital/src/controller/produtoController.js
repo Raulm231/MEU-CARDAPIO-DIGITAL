@@ -7,6 +7,34 @@ const dataService = new DataService();
 /** GET /products */
 export const getAllProducts = async (req, res) => {
   const products = await dataService.readAll();
+  
+  // ALTERAÇÃO: Adicionado suporte a pesquisa por nome ou ID do produto via query parameter
+  // Permite filtrar produtos pelo nome usando ?search=nome_produto ou por ID
+  const { search } = req.query;
+  
+  if (search) {
+    const searchTerm = String(search).toLowerCase().trim();
+    
+    // ALTERAÇÃO: Verifica se o termo de busca é um número (ID) ou texto (nome)
+    // Se for número, busca por ID; se for texto, busca por nome
+    const isNumericSearch = /^\d+$/.test(searchTerm);
+    
+    let filteredProducts = [];
+    
+    if (isNumericSearch) {
+      // Busca por ID exato
+      const searchId = Number(searchTerm);
+      filteredProducts = products.filter(product => product.id === searchId);
+    } else {
+      // Busca por nome (case-insensitive e parcial)
+      filteredProducts = products.filter(product => 
+        product.name.toLowerCase().includes(searchTerm)
+      );
+    }
+    
+    return res.json({ success: true, data: filteredProducts });
+  }
+  
   return res.json({ success: true, data: products });
 };
 
@@ -36,19 +64,23 @@ export const getProductById = async (req, res) => {
 
 /** POST /products */
 export const createProduct = async (req, res) => {
+  // ALTERAÇÃO: Modificado para não validar ID no payload, pois será auto-incrementado
+  // O ID agora é gerado automaticamente baseado no maior ID existente + 1
   const errors = validateNewProductPayload(req.body);
   if (errors.length) {
     return res.status(400).json({ success: false, message: 'Payload inválido.', errors });
   }
 
   const products = await dataService.readAll();
-  const id = Number(req.body.id);
+  
+  // ALTERAÇÃO: Implementado auto-increment para o ID
+  // Busca o maior ID existente e adiciona 1, ou usa 1 se não houver produtos
+  const maxId = products.length > 0 ? Math.max(...products.map(p => p.id)) : 0;
+  const id = maxId + 1;
+  
   const skuNorm = normalizeSku(req.body.sku);
 
-  // Regras de negócio
-  if (products.some((p) => p.id === id)) {
-    return res.status(409).json({ success: false, message: 'Já existe produto com este ID.' });
-  }
+  // Regras de negócio - removida verificação de ID duplicado pois agora é auto-incrementado
   if (products.some((p) => normalizeSku(p.sku) === skuNorm)) {
     return res.status(409).json({ success: false, message: 'Já existe produto com este SKU.' });
   }
